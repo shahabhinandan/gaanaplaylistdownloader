@@ -15,29 +15,31 @@ uclient.close()
 page_soup = soup(page_html, "html.parser")
 
 containers = page_soup.findAll("div",{"class":"lastend-container details-list-paddingnone content-container artworkload"})
-len(containers)
 contain = containers[0]
 song = contain.findAll("div",{"class":"track_npqitemdetail"})
 
 playlist = page_soup.findAll("div",{"class":"_d_t_det _d_tp_det"})
 playlist[0].h1.text
-os.mkdir(playlist[0].h1.text)
+try:
+	os.mkdir(playlist[0].h1.text)
+except Exception:
+	pass
 os.chdir(playlist[0].h1.text)
 
 filename = playlist[0].h1.text + ".csv"
 fcsv = open(filename, "w")
-headers = "title, artist\n"
+headers = "title, movie, artist\n"
 fcsv.write(headers)
 for s in song:
 	try:
-		title = s.h2.text
-		artist = s.p.text.split("-")[1].strip() 
-		movie = s.p.text.split("-")[0].strip()
-		print title + "," + movie + "," + artist + "\n"
+		title = s.h2.text.replace(","," & ").strip()
+		artist = s.p.text.split("-")[1].strip().replace(","," | ")
+		movie = s.p.text.split("-")[0].strip().replace(","," | ")
+		#print "Got " + title + "," + movie + "," + artist
 
-		fcsv.write(title + "," + movie + "," + artist + "\n")
+		fcsv.write(title + "," + movie + "," + artist)
 		link = "http://mymp3song.org/files/search/sort/download/find/" + movie.replace(" ",'+')
-		print link
+		#print "Going to " + link
 
 		uclient = uo(link)
 		page_html = uclient.read()
@@ -50,6 +52,7 @@ for s in song:
 			p = ss.findAll(text=re.compile(title,re.IGNORECASE))
 			if p:
 				d_page = "http://mymp3song.org" + ss['href']
+				#print "d_page is " + d_page
 				break
 		uclient = uo(d_page)
 		page_html = uclient.read()
@@ -59,6 +62,7 @@ for s in song:
 		dl = dl_page.findAll("div",{"class":"fi"})
 		url = "http://mymp3song.org" + dl[0].a['href']
 		
+		#print "Url donwloading is " + url
 
 		file_name = title + " - " + movie + ".mp3"
 		u = uo(url)
@@ -76,10 +80,13 @@ for s in song:
 
 		    file_size_dl += len(buffer)
 		    f.write(buffer)
-		    status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
-		    status = status + chr(8)*(len(status)+1)
-		    print status
+		    # status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
+		    # status = status + chr(8)*(len(status)+1)
+		print "Downloaded" + "\n"
+		fcsv.write(",Downloaded\n")
 		f.close()
+		del d_page
 	except Exception:
+		fcsv.write("\n")
 		pass
 fcsv.close()
