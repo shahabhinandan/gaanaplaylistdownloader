@@ -1,5 +1,5 @@
 # gaanaplaylistdownloader
-Gaana Playlist Downloader which downlaods all songs from playlist thru mymp3song [.] org site and also creates a csv file.
+Gaana Playlist Downloader which downloads all songs from playlist thru mymp3song [.] org site and also creates a csv file.
 So now you can easily download any playlist, or make your own and then download it.
 # How to use
 Make sure python is installed.
